@@ -9,7 +9,8 @@ namespace iskkonekb.kuvera.model.test
         [TestMethod]
         public void testPublicMethod()
         {
-       //     Assert.AreEqual(2, new SampleClass().publicData());
+            //un break test
+            Assert.AreEqual(2, new SampleClass().publicData());
         }
 
         [TestMethod]

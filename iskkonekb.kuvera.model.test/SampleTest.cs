@@ -1,13 +1,21 @@
-using Xunit;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace iskkonekb.kuvera.model.test
 {
+    [TestClass]
     public class SampleTest
     {
-        [Fact]
-        public void SampleClassReturns2()
+        [TestMethod]
+        public void testPublicMethod()
         {
-            Assert.Equal(2, new SampleClass().getData());
+            Assert.AreEqual(2, new SampleClass().publicData());
+        }
+
+        [TestMethod]
+        public void testInternalMethod()
+        {
+            Assert.AreEqual(3, new SampleClass().forTestData());
         }
     }
 }

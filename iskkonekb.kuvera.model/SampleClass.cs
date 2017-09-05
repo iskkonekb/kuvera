@@ -8,7 +8,8 @@ namespace iskkonekb.kuvera.model
         public int publicData() {
             if (DateTime.Now.Second < -1)
             {
-                //shows not covered line
+                //shows not covered line 
+                // force trigger
                 return 1;
             }
             return 2;

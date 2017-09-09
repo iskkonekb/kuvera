@@ -314,6 +314,28 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\iskkonekb.kuvera.core\iskkonekb.kuvera.core.csproj">
+      <Project>{204ef506-2ab0-49a5-bfb3-22435df97421}</Project>
+      <Name>iskkonekb.kuvera.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\iskkonekb.kuvera.dao\iskkonekb.kuvera.dao.csproj">
+      <Project>{22aa2474-a1e0-422e-abac-d3e88c1cd6d0}</Project>
+      <Name>iskkonekb.kuvera.dao</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\iskkonekb.kuvera.engine\iskkonekb.kuvera.engine.csproj">
+      <Project>{cdab279a-5ec4-48da-86d4-50fec790ce36}</Project>
+      <Name>iskkonekb.kuvera.engine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\iskkonekb.kuvera.model\iskkonekb.kuvera.model.csproj">
+      <Project>{157d0665-c4a9-4cbe-9ecc-5d47aa48c7b8}</Project>
+      <Name>iskkonekb.kuvera.model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\iskkonekb.kuvera.web\iskkonekb.kuvera.web.csproj">
+      <Project>{63b18fe5-9d1b-48db-8725-08b95ed1816f}</Project>
+      <Name>iskkonekb.kuvera.web</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

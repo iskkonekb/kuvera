@@ -48,7 +48,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="Account.cs" />
+    <Compile Include="Category.cs" />
+    <Compile Include="Entry.cs" />
+    <Compile Include="EntryModelTest.cs" />
+    <Compile Include="EntryType.cs" />
+    <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -2,18 +2,18 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("iskkonekb.kuvera.model.test")]
+[assembly: AssemblyTitle("iskkonekb.kuvera.dao.test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("iskkonekb.kuvera.model.test")]
+[assembly: AssemblyProduct("iskkonekb.kuvera.dao.test")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 
-[assembly: Guid("d0f9ae36-30ff-4c76-9ee3-b6184cffc97f")]
+[assembly: Guid("1d17e9dd-0758-45e6-a27f-47aa1e700af1")]
 
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]

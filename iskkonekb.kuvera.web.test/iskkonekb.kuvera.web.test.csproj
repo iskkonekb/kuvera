@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D0F9AE36-30FF-4C76-9EE3-B6184CFFC97F}</ProjectGuid>
+    <ProjectGuid>{3A4717A5-ABE7-4B3D-9893-AD5FFEA31249}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>iskkonekb.kuvera.model.test</RootNamespace>
-    <AssemblyName>iskkonekb.kuvera.model.test</AssemblyName>
+    <RootNamespace>iskkonekb.kuvera.web.test</RootNamespace>
+    <AssemblyName>iskkonekb.kuvera.web.test</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

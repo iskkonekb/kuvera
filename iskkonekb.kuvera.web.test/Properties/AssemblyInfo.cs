@@ -2,18 +2,18 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("iskkonekb.kuvera.model.test")]
+[assembly: AssemblyTitle("iskkonekb.kuvera.web.test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("iskkonekb.kuvera.model.test")]
+[assembly: AssemblyProduct("iskkonekb.kuvera.web.test")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 
-[assembly: Guid("d0f9ae36-30ff-4c76-9ee3-b6184cffc97f")]
+[assembly: Guid("3a4717a5-abe7-4b3d-9893-ad5ffea31249")]
 
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]

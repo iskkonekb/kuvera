@@ -1,4 +1,4 @@
-﻿namespace iskkonekb.kuvera.model.test
+﻿namespace iskkonekb.kuvera.model
 {
     internal class Project
     {

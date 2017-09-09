@@ -1,6 +1,6 @@
-﻿namespace iskkonekb.kuvera.model.test
+﻿namespace iskkonekb.kuvera.model
 {
-    internal class Category
+    public class Category
     {
         private string v;
 

@@ -48,16 +48,21 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Account.cs" />
-    <Compile Include="Category.cs" />
-    <Compile Include="Entry.cs" />
     <Compile Include="EntryModelTest.cs" />
-    <Compile Include="EntryType.cs" />
-    <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\iskkonekb.kuvera.core\iskkonekb.kuvera.core.csproj">
+      <Project>{204ef506-2ab0-49a5-bfb3-22435df97421}</Project>
+      <Name>iskkonekb.kuvera.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\iskkonekb.kuvera.model\iskkonekb.kuvera.model.csproj">
+      <Project>{157d0665-c4a9-4cbe-9ecc-5d47aa48c7b8}</Project>
+      <Name>iskkonekb.kuvera.model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

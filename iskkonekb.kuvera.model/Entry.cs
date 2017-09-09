@@ -1,20 +1,20 @@
 ﻿using System;
 
-namespace iskkonekb.kuvera.model.test
+namespace iskkonekb.kuvera.model
 {
-    internal class Entry
+    public class Entry
     {
         public Entry()
         {
         }
 
-        public DateTime AcceptTime { get; internal set; }
-        public Category Category { get; internal set; }
-        public object Type { get; internal set; }
-        public Account Outcome { get; internal set; }
-        public Project Project { get; internal set; }
-        public string Comment { get; internal set; }
-        public decimal Value { get; internal set; }
-        public Account Income { get; internal set; }
+        public DateTime AcceptTime { get;  set; }
+        public Category Category { get;  set; }
+        public EntryType Type { get;  set; }
+        public Account Outcome { get;  set; }
+        public Project Project { get;  set; }
+        public string Comment { get;  set; }
+        public decimal Value { get;  set; }
+        public Account Income { get;  set; }
     }
 }

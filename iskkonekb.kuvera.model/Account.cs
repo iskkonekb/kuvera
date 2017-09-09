@@ -1,6 +1,8 @@
-﻿namespace iskkonekb.kuvera.model.test
+﻿using System;
+
+namespace iskkonekb.kuvera.model
 {
-    internal class Account
+    public class Account
     {
         private string v;
 
@@ -8,5 +10,9 @@
         {
             this.v = v;
         }
+
+        public Department Department { get; set; }
+        public DateTime SaldoDate { get; set; }
+        public decimal SaldoIn { get; set; }
     }
 }

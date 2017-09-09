@@ -1,6 +1,6 @@
-﻿namespace iskkonekb.kuvera.model.test
+﻿namespace iskkonekb.kuvera.model
 {
-    internal enum EntryType
+    public enum EntryType
     {
         Outcome,
         Income,

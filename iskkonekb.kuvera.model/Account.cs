@@ -12,7 +12,7 @@ namespace iskkonekb.kuvera.model
         }
 
         public Department Department { get; set; }
-        public DateTime SaldoDate { get; set; }
-        public decimal SaldoIn { get; set; }
+        public DateTime DateCreate { get; set; }
+        public decimal InitialSaldo { get; set; }
     }
 }

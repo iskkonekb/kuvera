@@ -25,7 +25,7 @@ namespace iskkonekb.kuvera.model.test
             var entry = new Entry
             {
                 AcceptTime = new DateTime(2017, 7, 15),
-                Category = new Category("food"),
+                Category = new Category("food","Продукты питания"),
                 Type = EntryType.Outcome,
                 Outcome = new Account("kitchen-card"),
                 Project = new Project("rathayatra-2017"),
@@ -48,7 +48,7 @@ namespace iskkonekb.kuvera.model.test
             var entry = new Entry
             {
                 AcceptTime = new DateTime(2017, 7, 17),
-                Category = new Category("donation"),
+                Category = new Category("donation", "Пожертвование"),
                 Type = EntryType.Income,
                 Outcome = new Account("kitchen-cash"),
                 Comment = "от физлица",

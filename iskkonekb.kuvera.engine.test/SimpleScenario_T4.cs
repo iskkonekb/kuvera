@@ -14,26 +14,23 @@ namespace iskkonekb.kuvera.engine.test
     {
         Department kitchen = new Department("kitchen");
         Project rathayatra = new Project("rathayatra-2017");
-        Category food = new Category("food");
-        Category donation = new Category("donation");
+        Category food = new Category("food", "Продукты питания");
+        Category initSaldo = new Category(SysCategory.initSaldo.ToString(), "Остаток на момент создания счета");
+        Category donation = new Category("donation", "Пожертвования");
         Account kitchen_cash;
         Account kitchen_card;
-        Accounts account;
-        Departments department;
-        Entries entries;
+        Engine engine;
         private void InitModel()
         {
             kitchen_cash = new Account("kitchen_cash")
             {
                 Department = kitchen,
-                DateCreate = new DateTime(2017, 1, 1),
-                InitialSaldo = 2000m
+                DateCreate = new DateTime(2017, 1, 1)
             };
             kitchen_card = new Account("kitchen_card")
             {
                 Department = kitchen,
-                DateCreate = new DateTime(2017, 1, 1),
-                InitialSaldo = 3000
+                DateCreate = new DateTime(2017, 1, 1)
             };
         }
 
@@ -41,7 +38,25 @@ namespace iskkonekb.kuvera.engine.test
         {
             yield return new Entry()
             {
-                AcceptTime = new DateTime(2017, 7, 15, 13, 0, 0),
+                AcceptTime = EngineConsts.NullDate,
+                Type = EntryType.Income,
+                Income = kitchen_cash,
+                Category = initSaldo,
+                Value = 2000,
+                Comment = "Пополнение остатка"
+            };
+            yield return new Entry()
+            {
+                AcceptTime = EngineConsts.NullDate,
+                Type = EntryType.Income,
+                Income = kitchen_card,
+                Category = initSaldo,
+                Value = 3000,
+                Comment = "Пополнение остатка"
+            };
+            yield return new Entry()
+            {
+                AcceptTime = new DateTime(2017, 7, 15),
                 Project = rathayatra,
                 Type=EntryType.Outcome,
                 Outcome = kitchen_card,
@@ -51,7 +66,7 @@ namespace iskkonekb.kuvera.engine.test
             };
             yield return new Entry()
             {
-                AcceptTime = new DateTime(2017, 7, 15, 13, 0, 0),
+                AcceptTime = new DateTime(2017, 7, 15),
                 Project = rathayatra,
                 Type= EntryType.Outcome,
                 Outcome = kitchen_cash,
@@ -61,7 +76,7 @@ namespace iskkonekb.kuvera.engine.test
             };
             yield return new Entry()
             {
-                AcceptTime = new DateTime(2017, 7, 16, 13, 0, 0),
+                AcceptTime = new DateTime(2017, 7, 16),
                 Project = rathayatra,
                 Outcome = kitchen_card,
                 Type = EntryType.Outcome,
@@ -71,7 +86,7 @@ namespace iskkonekb.kuvera.engine.test
             };
             yield return new Entry()
             {
-                AcceptTime = new DateTime(2017, 7, 17, 13, 0, 0),
+                AcceptTime = new DateTime(2017, 7, 17),
                 Project = rathayatra,
                 Type = EntryType.Income,
                 Income = kitchen_cash,
@@ -81,7 +96,7 @@ namespace iskkonekb.kuvera.engine.test
             };
             yield return new Entry()
             {
-                AcceptTime = new DateTime(2017, 7, 18, 13, 0, 0),
+                AcceptTime = new DateTime(2017, 7, 18),
                 Project = rathayatra,
                 Type = EntryType.Transfer,
                 Income = kitchen_card,
@@ -94,13 +109,8 @@ namespace iskkonekb.kuvera.engine.test
         public SimpleScenario_T4()
         {
             InitModel();
-            account = new Accounts();
-            department = new Departments();
-            entries = new Entries();
-            entries.RegisterEntries(GetEntries());
-
-            account.SetEntries(entries.GetEntries());
-            department.SetEntries(entries.GetEntries());
+            engine = new Engine();
+            engine.RegisterEntries(GetEntries());
         }
 
         /// <summary>
@@ -109,7 +119,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1507_900()
         {
-            Assert.AreEqual(900, account.GetOutRest(kitchen_cash, new DateTime(2017, 7, 15))); 
+            Assert.AreEqual(900, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 15))); 
         }
 
         /// <summary>
@@ -118,7 +128,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1507_2000()
         {
-            Assert.AreEqual(2000, account.GetOutRest(kitchen_card, new DateTime(2017, 7, 15)));
+            Assert.AreEqual(2000, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 15)));
         }
 
         /// <summary>
@@ -127,7 +137,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1607_900()
         {
-            Assert.AreEqual(900, account.GetOutRest(kitchen_cash, new DateTime(2017, 7, 16)));
+            Assert.AreEqual(900, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 16)));
         }
 
         /// <summary>
@@ -136,7 +146,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1607_1500()
         {
-            Assert.AreEqual(1500, account.GetOutRest(kitchen_card, new DateTime(2017, 7, 16)));
+            Assert.AreEqual(1500, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 16)));
         }
 
         /// <summary>
@@ -145,7 +155,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1707_3000()
         {
-            Assert.AreEqual(3000, account.GetOutRest(kitchen_cash, new DateTime(2017, 7, 17)));
+            Assert.AreEqual(3000, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 17)));
         }
 
         /// <summary>
@@ -154,7 +164,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1707_1500()
         {
-            Assert.AreEqual(1500, account.GetOutRest(kitchen_card, new DateTime(2017, 7, 17)));
+            Assert.AreEqual(1500, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 17)));
         }
 
         /// <summary>
@@ -163,7 +173,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1807_1000()
         {
-            Assert.AreEqual(1000, account.GetOutRest(kitchen_cash, new DateTime(2017, 7, 18)));
+            Assert.AreEqual(1000, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 18)));
         }
 
         /// <summary>
@@ -172,7 +182,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1807_3500()
         {
-            Assert.AreEqual(3500, account.GetOutRest(kitchen_card, new DateTime(2017, 7, 18)));
+            Assert.AreEqual(3500, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 18)));
         }
 
         /// <summary>
@@ -181,7 +191,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void Outcome_Sum_July_2600()
         {
-            Assert.AreEqual(2600, department.Sum(new DateTime(2017, 7, 1),
+            Assert.AreEqual(2600, engine.Sum(new DateTime(2017, 7, 1),
                 new DateTime(2017, 7, 31),
                 kitchen,
                 EntryType.Outcome));
@@ -193,12 +203,11 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void Income_Sum_July_2100()
         {
-            Assert.AreEqual(2100, department.Sum(new DateTime(2017, 7, 1),
+            Assert.AreEqual(2100, engine.Sum(new DateTime(2017, 7, 1),
                 new DateTime(2017, 7, 31),
                 kitchen,
                 EntryType.Income));
         }
-
 
         /// <summary>
         /// 13. Общая сумма доступных средств департамента на начало месяца 5000
@@ -206,10 +215,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void InRest_July_5000()
         {
-            decimal rest = 0;
-            rest = account.GetOutRest(kitchen_cash, new DateTime(2017, 7, 1));
-            rest = rest + account.GetOutRest(kitchen_card, new DateTime(2017, 7, 1));
-            Assert.AreEqual(5000, rest);
+            Assert.AreEqual(5000, engine.SaldoOut(new DateTime(2017, 7, 1), kitchen));
         }
 
         /// <summary>
@@ -218,10 +224,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void OutRest_July_4500()
         {
-            decimal rest = 0;
-            rest = account.GetOutRest(kitchen_cash, new DateTime(2017, 7, 31));
-            rest = rest + account.GetOutRest(kitchen_card, new DateTime(2017, 7, 31));
-            Assert.AreEqual(4500, rest);
+            Assert.AreEqual(4500, engine.SaldoOut(new DateTime(2017, 7, 31), kitchen));
         }
     }
 }

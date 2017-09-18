@@ -89,6 +89,11 @@ namespace iskkonekb.kuvera.engine
             ).Sum(it => it.Value);
         }
 
+        public decimal Sum(Query query)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Расчет исх. остатка по департаменту
         /// </summary>

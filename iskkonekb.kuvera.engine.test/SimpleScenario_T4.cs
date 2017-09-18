@@ -119,7 +119,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1507_900()
         {
-            Assert.AreEqual(900, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 15))); 
+            Assert.AreEqual(900, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_cash, new DateTime(2017, 7, 15)))); 
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1507_2000()
         {
-            Assert.AreEqual(2000, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 15)));
+            Assert.AreEqual(2000, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_card, new DateTime(2017, 7, 15))));
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1607_900()
         {
-            Assert.AreEqual(900, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 16)));
+            Assert.AreEqual(900, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_cash, new DateTime(2017, 7, 16))));
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1607_1500()
         {
-            Assert.AreEqual(1500, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 16)));
+            Assert.AreEqual(1500, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_card, new DateTime(2017, 7, 16))));
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1707_3000()
         {
-            Assert.AreEqual(3000, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 17)));
+            Assert.AreEqual(3000, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_cash, new DateTime(2017, 7, 17))));
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1707_1500()
         {
-            Assert.AreEqual(1500, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 17)));
+            Assert.AreEqual(1500, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_card, new DateTime(2017, 7, 17))));
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CashRest1807_1000()
         {
-            Assert.AreEqual(1000, engine.SaldoOut(kitchen_cash, new DateTime(2017, 7, 18)));
+            Assert.AreEqual(1000, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_cash, new DateTime(2017, 7, 18))));
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void CardRest1807_3500()
         {
-            Assert.AreEqual(3500, engine.SaldoOut(kitchen_card, new DateTime(2017, 7, 18)));
+            Assert.AreEqual(3500, engine.Sum(QueryBuilder.AccountSaldoOut(kitchen_card, new DateTime(2017, 7, 18))));
         }
 
         /// <summary>
@@ -191,10 +191,10 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void Outcome_Sum_July_2600()
         {
-            Assert.AreEqual(2600, engine.Sum(new DateTime(2017, 7, 1),
+            Assert.AreEqual(2600, engine.Sum(QueryBuilder.SumDepart(new DateTime(2017, 7, 1),
                 new DateTime(2017, 7, 31),
                 kitchen,
-                EntryType.Outcome));
+                EntryType.Outcome)));
         }
 
         /// <summary>
@@ -203,10 +203,10 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void Income_Sum_July_2100()
         {
-            Assert.AreEqual(2100, engine.Sum(new DateTime(2017, 7, 1),
+            Assert.AreEqual(2100, engine.Sum(QueryBuilder.SumDepart(new DateTime(2017, 7, 1),
                 new DateTime(2017, 7, 31),
                 kitchen,
-                EntryType.Income));
+                EntryType.Income)));
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void InRest_July_5000()
         {
-            Assert.AreEqual(5000, engine.SaldoOut(new DateTime(2017, 7, 1), kitchen));
+            Assert.AreEqual(5000, engine.Sum(QueryBuilder.DepartSaldoOut(kitchen, new DateTime(2017, 7, 1))));
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace iskkonekb.kuvera.engine.test
         [TestMethod]
         public void OutRest_July_4500()
         {
-            Assert.AreEqual(4500, engine.SaldoOut(new DateTime(2017, 7, 31), kitchen));
+            Assert.AreEqual(4500, engine.Sum(QueryBuilder.DepartSaldoOut(kitchen, new DateTime(2017, 7, 31))));
         }
     }
 }

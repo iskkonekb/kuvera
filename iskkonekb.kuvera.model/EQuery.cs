@@ -68,12 +68,10 @@ namespace iskkonekb.kuvera.model
         private DepartmentCondition _Department;
         private void _addCondition(ICondition condition)
         {
+            if (condition == null) return;
             if (where.Contains(condition))
                 where.Remove(condition);
-            if (condition != null)
-            {
-                where.Add(condition);
-            }
+            where.Add(condition);
         }
 
         public EQuery()

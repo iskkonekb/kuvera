@@ -55,7 +55,7 @@ namespace iskkonekb.kuvera.model
             // !!! Здесь хорошо бы сделать лямбда конструктор чтобы условие x.Type == _Type дважды не попадало вв LINQ
             IEnumerable<Entry> tt = (IEnumerable<Entry>)query;
             return (IEnumerable<T>)tt.Where(x => x.Type == _Type &&
-            (_Type == EntryType.Income ? x.Income : x.Outcome).Department == Department);
+            (_Type == EntryType.Income ? x.Income : x.Outcome).Department == _Department);
         }
     }
 
@@ -68,7 +68,8 @@ namespace iskkonekb.kuvera.model
         private DepartmentCondition _Department;
         private void _addCondition(ICondition condition)
         {
-            where.Remove(condition);
+            if (where.Contains(condition))
+                where.Remove(condition);
             if (condition != null)
             {
                 where.Add(condition);

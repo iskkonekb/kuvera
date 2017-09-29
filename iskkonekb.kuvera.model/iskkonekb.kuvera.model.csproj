@@ -45,8 +45,12 @@
     <Compile Include="Department.cs" />
     <Compile Include="Entry.cs" />
     <Compile Include="EntryType.cs" />
+    <Compile Include="Condition.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="EQuery.cs" />
+    <Compile Include="Query.cs" />
+    <Compile Include="QueryBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iskkonekb.kuvera.core\iskkonekb.kuvera.core.csproj">

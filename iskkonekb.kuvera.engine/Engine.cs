@@ -5,10 +5,6 @@ using System.Linq;
 
 namespace iskkonekb.kuvera.engine
 {
-    public static class EngineConsts
-    {
-        public static DateTime NullDate { get { return new DateTime(1900, 1, 1); } }
-    }
     public class Engine : IEngine
     {
         private List<Entry> _entries = new List<Entry>();

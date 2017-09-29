@@ -54,9 +54,10 @@ namespace iskkonekb.kuvera.model
         public virtual IEnumerable<T> Filter<T>(IEnumerable<T> srcArr)
         {
             var result = srcArr;
-            //Филлььтр родительского Query
+            //Фильтр родительского Query
             if (parent != null)
                 result = parent.Filter(result);
+            //Филтры по условиям текущего Query
             foreach (var x in where)
                 result = x.Apply(result);
             //Применить условия подзапросов
@@ -70,16 +71,21 @@ namespace iskkonekb.kuvera.model
         /// <returns></returns>
         private IEnumerable<T> FilterSubQueries<T>(IEnumerable<T> srcArr)
         {
-            IEnumerable<T> result = Enumerable.Empty<T>(); ;
-            if (subQ == null) return srcArr;
+            IEnumerable<T> result = null;
             if (subQ.Count > 0)
                 foreach (var x in subQ)
                 {
                     //Вариант влияния дочерней выборки на родителя
-                    if (Set == ResultSets.Union) //Объединяем подмножества
+                    if (x.Set == ResultSets.Union) //Объединяем подмножества
+                    {
+                        if (result == null) result = Enumerable.Empty<T>();
                         result = Enumerable.Concat(result, x.Filter(srcArr));
-                    else //Ораничиваем результирующую выборку
-                        result = x.Filter(srcArr);
+                    }
+                    else if (x.Set == ResultSets.Combined) //Ораничиваем результирующую выборку
+                    {
+                        if (result == null) result = srcArr;
+                        result = x.Filter(result);
+                    }
                 }
             else
                 result = srcArr;

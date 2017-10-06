@@ -4,122 +4,105 @@ using System.Linq;
 
 namespace iskkonekb.kuvera.model
 {
-    public struct DateTimeRange
-    {
-        public DateTime From;
-        public DateTime To;
-    }
-    /// <summary>
-    /// Отбор по дате проводки
-    /// </summary>
-    public class AcceptTimeCondition : ICondition
-    {
-        private DateTimeRange _AcceptTime;
-        public AcceptTimeCondition()
-        {
-            _AcceptTime.From = EngineConsts.NullDate;
-            _AcceptTime.To = EngineConsts.NullDate;
-        }
-        /// <summary>
-        /// Период проводки
-        /// </summary>
-        public DateTimeRange AcceptTime { get => _AcceptTime; set => _AcceptTime = value; }
-        public IEnumerable<T> Apply<T>(IEnumerable<T> query)
-        {
-            IEnumerable<Entry> tt = (IEnumerable<Entry>)query;
-            return (IEnumerable<T>)tt.Where(x => (x.AcceptTime >= _AcceptTime.From || _AcceptTime.From == EngineConsts.NullDate) 
-                    && x.AcceptTime <= _AcceptTime.To);
-        }
-    }
-    /// <summary>
-    /// Отбор по подразделению
-    /// </summary>
-    public class DepartmentCondition : ICondition
-    {
-        private EntryType _Type;
-        private Department _Department;
-        /// <summary>
-        /// Тип операции. Приход/Расход
-        /// </summary>
-        public EntryType Type { get => _Type; set => _Type = value; }
-        /// <summary>
-        /// Подразделение
-        /// </summary>
-        public Department Department { get => _Department; set => _Department = value; }
-        public DepartmentCondition()
-        {
-        }
-
-        public IEnumerable<T> Apply<T>(IEnumerable<T> query)
-        {
-            // !!! Здесь хорошо бы сделать лямбда конструктор чтобы условие x.Type == _Type дважды не попадало вв LINQ
-            IEnumerable<Entry> tt = (IEnumerable<Entry>)query;
-            return (IEnumerable<T>)tt.Where(x => x.Type == _Type &&
-            (_Type == EntryType.Income ? x.Income : x.Outcome).Department == _Department);
-        }
-    }
-
     /// <summary>
     /// Реализация Query для Entries
     /// </summary>
     public class EQuery : Query
     {
-        private AcceptTimeCondition _AcceptTime;
-        private DepartmentCondition _Department;
+        private AcceptTimeCondition _AcceptTimeCondition;
+        private DepartmentCondition _DepartmentCondition;
+        private EntryTypeCondition _EntryTypeCondition;
+        private AccountCondition _AccountCondition;
+        /// <summary>
+        /// Добавить уусловие в массив
+        /// </summary>
+        /// <param name="condition"></param>
         private void _addCondition(ICondition condition)
         {
             if (condition == null) return;
-            if (where.Contains(condition))
-                where.Remove(condition);
-            where.Add(condition);
+            if (Conditions.Contains(condition))
+                Conditions.Remove(condition);
+            Conditions.Add(condition);
         }
-
+        /// <summary>
+        /// Умолчательный конструктор
+        /// </summary>
         public EQuery()
         {
-            _AcceptTime = new AcceptTimeCondition();
-            _Department = new DepartmentCondition();
+        }
+        /// <summary>
+        /// Запомнить условие по сроку
+        /// </summary>
+        /// <param name="value">Период</param>
+        private void SetAcceptTimeCondition(DateTimeRange value)
+        {
+            if (Conditions.Contains(_AcceptTimeCondition)) Conditions.Remove(_AcceptTimeCondition);
+            _AcceptTimeCondition = new AcceptTimeCondition { AcceptTime = value };
+            if (_AcceptTimeCondition != null) Conditions.Add(_AcceptTimeCondition);
         }
         /// <summary>
         /// условие для периода проводки
         /// </summary>
-        public DateTimeRange AcceptTime;
+        public DateTimeRange AcceptTime { get => _AcceptTimeCondition.AcceptTime; set { SetAcceptTimeCondition( value); } }
+        private void SetDepartCondition(DepartmentCondition value)
+        {
+            if (Conditions.Contains(_DepartmentCondition)) Conditions.Remove(_DepartmentCondition);
+            _DepartmentCondition = value;
+            if (_DepartmentCondition != null) Conditions.Add(_DepartmentCondition);
+        }
         /// <summary>
         /// Подразделение
         /// </summary>
-        public Department Department;
+        public DepartmentCondition Department { get => _DepartmentCondition; set => SetDepartCondition(value); }
+        /// <summary>
+        /// Установка условия отбора по счету
+        /// </summary>
+        /// <param name="value"></param>
+        private void SetAccountCondition(AccountCondition value)
+        {
+            if (Conditions.Contains(_AccountCondition)) Conditions.Remove(_AccountCondition);
+            _AccountCondition = value;
+            if (_AccountCondition != null) Conditions.Add(_AccountCondition);
+        }
+        /// <summary>
+        /// Условие по счету
+        /// </summary>
+        public AccountCondition Account { get => _AccountCondition; set => SetAccountCondition(value); }
+        private void SetEntryTypeCondition(EntryType[] value)
+        {
+            if (Conditions.Contains(_EntryTypeCondition)) Conditions.Remove(_EntryTypeCondition);
+            _EntryTypeCondition = new EntryTypeCondition { Types = value };
+            if (_EntryTypeCondition != null) Conditions.Add(_EntryTypeCondition);
+        }
         /// <summary>
         /// Тип операции. Приход/Расход
         /// </summary>
-        public EntryType Type;
-        //Добавить условие по периоду
-        private void _addAcceptTimeCond()
+        public EntryType[] EntryType { get => _EntryTypeCondition.Types; set => SetEntryTypeCondition(value); }
+        /// <summary>
+        /// Добавить условие по периоду
+        /// </summary>
+        private void _addAcceptTimeCondition()
         {
             //Условие по периоду
-            if (AcceptTime.From != EngineConsts.NullDate || AcceptTime.To != EngineConsts.NullDate)
+            if (_AcceptTimeCondition == null) return;
+            if (_AcceptTimeCondition.AcceptTime.From != EngineConsts.NullDate || _AcceptTimeCondition.AcceptTime.To != EngineConsts.NullDate)
             {
-                _AcceptTime.AcceptTime = AcceptTime;
-                _addCondition(_AcceptTime);
+                _addCondition(_AcceptTimeCondition);
             }
-            else if (where.Contains(_AcceptTime))
-                where.Remove(_AcceptTime);
+            else if (Conditions.Contains(_AcceptTimeCondition))
+                Conditions.Remove(_AcceptTimeCondition);
         }
-        //Добавить условие по подразделениям
-        private void _addDepartCond()
+        public override IEnumerable<T> Apply<T>(IEnumerable<T> srcArr)
         {
-            if (Department != null)
-            {
-                _Department.Department = Department;
-                _Department.Type = Type;
-                _addCondition(_Department);
-            }
-            else if (where.Contains(_Department))
-                where.Remove(_Department);
-        }
-        public override IEnumerable<T> Filter<T>(IEnumerable<T> srcArr)
-        {
-            _addAcceptTimeCond(); //Условие по периоду
-            _addDepartCond(); //Условие по подразделениям
-            return base.Filter(srcArr);
+            _addAcceptTimeCondition(); //Условие по периоду
+            _addCondition(_EntryTypeCondition); //Добавить условие по стороне проводки
+            if (_DepartmentCondition != null)
+                if (_DepartmentCondition.Types == null)
+                    _DepartmentCondition.Types = _EntryTypeCondition.Types;
+            if (_AccountCondition != null)
+                if (_AccountCondition.Types == null)
+                    _AccountCondition.Types = _EntryTypeCondition.Types;
+            return base.Apply(srcArr);
         }
     }
 }

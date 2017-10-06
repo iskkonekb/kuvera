@@ -1,49 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace iskkonekb.kuvera.model
 {
     public enum QueryTypes
     {
-        Select,
-        Sum,
-        Formula
-    }
-    /// <summary>
-    /// Способ обработки результата у подзапросов для основного запроса
-    /// </summary>
-    public enum ResultSets
-    {
-        /// <summary>
-        /// Результаты подзапросов будут объединены в итоговый набор
-        /// </summary>
-        Union,
-        /// <summary>
-        /// Подзапросы будут накладывать один за другим свои условия на поступивший набор
-        /// </summary>
-        Combined
+        Primary,
+        Sum
+        //Formula
     }
     public class Query
     {
-        public bool Negate;
-        public Query parent;
-        public List<ICondition> where;
+        public Query Parent { get; set; }
+        public List<ICondition> Conditions { get; private set; } = new List<ICondition>();
         /// <summary>
         /// Режим влияния подзапроса на результирующую выборку.
         /// </summary>
-        public ResultSets Set;
-        //public QueryTypes type;
-        public List<Query> subQ;
+        public QueryTypes QueryType { get; set; }
+        public bool IgnoreMinus { get; set; }
+        public List<Query> SubQueries { get; private set; } = new List<Query>();
+        public bool Negate { get; set; }
         /// <summary>
         /// Конструктор
         /// </summary>
         public Query()
         {
             //Default sets
-            Set = ResultSets.Union;
-            where = new List<ICondition>();
-            subQ = new List<Query>();
             Negate = false;
+            IgnoreMinus = false;
+            QueryType = QueryTypes.Primary;
         }
         /// <summary>
         /// Применить условия текущего запроса
@@ -51,45 +37,28 @@ namespace iskkonekb.kuvera.model
         /// <typeparam name="T">Коллекция произвольного типа</typeparam>
         /// <param name="srcArr">Массив Исодных данных, для которыхх ппприменяются условия</param>
         /// <returns></returns>
-        public virtual IEnumerable<T> Filter<T>(IEnumerable<T> srcArr)
+        public virtual IEnumerable<T> Apply<T>(IEnumerable<T> srcArr)
         {
             var result = srcArr;
             //Фильтр родительского Query
-            if (parent != null)
-                result = parent.Filter(result);
+            if (Parent != null)
+                result = Parent.Apply(result);
             //Филтры по условиям текущего Query
-            foreach (var x in where)
+            foreach (var x in Conditions)
                 result = x.Apply(result);
-            //Применить условия подзапросов
-            return FilterSubQueries(result);
+            return result;
         }
         /// <summary>
-        /// Применить условия подзапросов для текущего запроса
+        /// Вернуть коллекцию запросов передданного запроса-контейнера
         /// </summary>
-        /// <typeparam name="T">Коллекция произвольного типа</typeparam>
-        /// <param name="srcArr">Массив Исодных данных, для которыхх ппприменяются условия</param>
+        /// <typeparam name="T">Тип результата</typeparam>
+        /// <param name="collector">Фнкция обработки коллекции запросов</param>
         /// <returns></returns>
-        private IEnumerable<T> FilterSubQueries<T>(IEnumerable<T> srcArr)
+        public IEnumerable<T> CollectSubresults<T>(Func<Query, T> collector)
         {
-            IEnumerable<T> result = null;
-            if (subQ.Count > 0)
-                foreach (var x in subQ)
-                {
-                    //Вариант влияния дочерней выборки на родителя
-                    if (x.Set == ResultSets.Union) //Объединяем подмножества
-                    {
-                        if (result == null) result = Enumerable.Empty<T>();
-                        result = Enumerable.Concat(result, x.Filter(srcArr));
-                    }
-                    else if (x.Set == ResultSets.Combined) //Ораничиваем результирующую выборку
-                    {
-                        if (result == null) result = srcArr;
-                        result = x.Filter(result);
-                    }
-                }
-            else
-                result = srcArr;
-            return result;
+            if (SubQueries != null)
+                foreach (var x in SubQueries)
+                    yield return collector(x);
         }
     }
 }

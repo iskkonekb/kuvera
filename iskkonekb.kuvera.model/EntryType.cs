@@ -2,6 +2,7 @@
 {
     public enum EntryType
     {
+        Any,
         Outcome,
         Income,
         Transfer

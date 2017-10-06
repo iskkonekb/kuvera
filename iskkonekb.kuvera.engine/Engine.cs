@@ -17,108 +17,49 @@ namespace iskkonekb.kuvera.engine
         {
             _entries.AddRange(entries);
         }
-
         /// <summary>
-        /// Получить начальный остаток по департаменту
+        /// Рассчитать сумму проводок
         /// </summary>
-        /// <param name="depart">Подразделение</param>
+        /// <param name="query">Запрос для расчета</param>
         /// <returns></returns>
-        public decimal InitSaldo(Department department)
-        {
-            if (_entries.Count == 0) return 0;
-            return _entries.Where(x => x.Type == EntryType.Income &&
-            x.Income.Department == department
-            && ((x.Category != null) ? x.Category.Code : String.Empty) == SysCategory.initSaldo.ToString()
-            ).Sum(it => it.Value);
-        }
-        /// <summary>
-        /// Получить начальный остаток по счету
-        /// </summary>
-        /// <param name="account">Счет</param>
-        /// <returns></returns>
-        public decimal InitSaldo(Account account)
-        {
-            if (_entries.Count == 0) return 0;
-            return _entries.Where(x => x.Type == EntryType.Income &&
-            x.Income == account
-            && ((x.Category != null) ? x.Category.Code : String.Empty) == SysCategory.initSaldo.ToString()
-            ).Sum(it => it.Value);
-        }
-
-        /// <summary>
-        /// Сумма доходов/расходов по департаменту за период
-        /// </summary>
-        /// <param name="startdate"></param>
-        /// <param name="enddate"></param>
-        /// <param name="department"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public decimal Sum(DateTime startdate, DateTime enddate, Department department, EntryType type)
-        {
-            if (_entries.Count == 0) return 0;
-            return _entries.Where(x => x.Type == type &&
-            (x.AcceptTime >= startdate || startdate == EngineConsts.NullDate) && x.AcceptTime <= enddate
-            && (type == EntryType.Income ? x.Income : x.Outcome).Department == department
-            && ((x.Category != null) ? x.Category.Code : String.Empty) != SysCategory.initSaldo.ToString()
-            ).Sum(it => it.Value);
-        }
-        /// <summary>
-        /// Сумма доходов/расходов по счету за период
-        /// </summary>
-        /// <param name="startdate">Дата начала периода</param>
-        /// <param name="enddate">Дата окончания периода</param>
-        /// <param name="account">Счет</param>
-        /// <param name="type">Спписание/Зачисление</param>
-        /// <returns></returns>
-        public decimal Sum(DateTime startdate, DateTime enddate, Account account, EntryType type)
-        {
-            if (_entries.Count == 0) return 0;
-            List<EntryType> types = new List<EntryType>
-            {
-                type,
-                EntryType.Transfer
-            };
-            return _entries.Where(x => types.Contains(x.Type) &&
-            x.AcceptTime >= startdate && x.AcceptTime <= enddate &&
-            (type == EntryType.Income ? x.Income : x.Outcome) == account
-            && ((x.Category != null) ? x.Category.Code : String.Empty) != SysCategory.initSaldo.ToString()
-            ).Sum(it => it.Value);
-        }
-
         public decimal Sum(Query query)
         {
-            throw new NotImplementedException();
+            decimal result = 0m;
+            decimal rawresult = 0m;
+            if (query.QueryType == QueryTypes.Primary)
+                rawresult = PrimarySum(query);
+            else if (query.QueryType == QueryTypes.Sum)
+                rawresult = query.CollectSubresults(x => Sum(x)).Sum(); // рекурсивный вызов с суммированием
+            /*else
+                rawresult = ExecuteFormula(query);*/
+            result = AdaptResult(rawresult, query);
+            return result;
         }
 
-        /// <summary>
-        /// Расчет исх. остатка по департаменту
-        /// </summary>
-        /// <param name="account">Счет</param>
-        /// <param name="dt">Дата и время окончания периода</param>
-        /// <returns></returns>
-        public decimal SaldoOut(DateTime dt, Department department)
+        /*decimal ExecuteFormula(Query query)
         {
-            if (_entries.Count == 0) return 0;
-            decimal initSaldo = InitSaldo(department);
-            decimal incSum = Sum(EngineConsts.NullDate, dt, department, EntryType.Income);    // Сумма зачислений
-            decimal outSum = Sum(EngineConsts.NullDate, dt, department, EntryType.Outcome);    //Сумма списаний
-            //Сумма оборотов по счету в диаазоне дат
-            return initSaldo + incSum - outSum;
+            throw new NotImplementedException("Пока формулы не поддерживаются");
+        }*/
+        /// <summary>
+        /// Пост обработка результатов вычислений
+        /// </summary>
+        /// <param name="result">Рассчитанный результат</param>
+        /// <param name="query">Запрос для которого рассчитываются проводки</param>
+        /// <returns></returns>
+        decimal AdaptResult(decimal result, Query query)
+        {
+            if (query.IgnoreMinus && result < 0) return 0;
+            if (query.Negate) return -result;
+            return result;
         }
         /// <summary>
-        /// Расчет исх. остатка по счету
+        /// Расчет суммы по основномуу запросу
         /// </summary>
-        /// <param name="account">Счет</param>
-        /// <param name="dt">Дата и время окончания периода</param>
-        /// <returns></returns>
-        public decimal SaldoOut(Account account, DateTime dt)
+        /// <param name="query">Запрос</param>
+        /// <returns>Рассчитанная сумма по проводкам</returns>
+        decimal PrimarySum(Query query)
         {
-            if (_entries.Count == 0) return 0;
-            decimal initSaldo = InitSaldo(account);
-            decimal incSum = Sum(account.DateCreate, dt, account, EntryType.Income);    // Сумма зачислений
-            decimal outSum = Sum(account.DateCreate, dt, account, EntryType.Outcome);    //Сумма списаний
-            //Сумма оборотов по счету в диаазоне дат
-            return initSaldo + incSum - outSum;
+            return query.Apply(_entries).Sum(x => x.Value);
         }
 
         public Engine()

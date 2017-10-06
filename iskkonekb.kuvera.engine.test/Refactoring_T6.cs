@@ -26,84 +26,381 @@ namespace iskkonekb.kuvera.engine.test
                 return (IEnumerable<T>)tt.Where(x => x.Type == EntryType.Outcome);
             }
         }
-        public class AccountCondition : ICondition
+        public class DohodCondition : ICondition
+        {
+            public IEnumerable<T> Apply<T>(IEnumerable<T> query)
+            {
+                IEnumerable<Entry> tt = (IEnumerable<Entry>)query;
+                return (IEnumerable<T>)tt.Where(x => x.Type == EntryType.Income);
+            }
+        }
+        public class AccountConditionSimple : ICondition
         {
             Account _acc;
-            public AccountCondition(Account acc)
+            public AccountConditionSimple(Account acc)
             {
                 _acc = acc;
             }
             public IEnumerable<T> Apply<T>(IEnumerable<T> query)
             {
                 IEnumerable<Entry> tt = (IEnumerable<Entry>)query;
-                return (IEnumerable<T>)tt.Where(x => x.Outcome == _acc);
+                return (IEnumerable<T>)tt.Where(x => x.Outcome == _acc || x.Income == _acc);
             }
         }
 
         [TestMethod]
-        public void FilterRashod()
+        public void T6_FilterParentRashodCard()
         {
+            var qParent = new Query { Conditions = { new RashodCondition() } };
             var q = new Query
-            { /*type = QueryTypes.Select,*/
-                where = { new RashodCondition() },
-                subQ = {
-                    new Query { Set = ResultSets.Union, where = { new AccountCondition(kitchen_card) } },
-                    new Query { where = { new AccountCondition(kitchen_cash) } }
-                }
+            {
+                Parent = qParent,
+                Conditions = { new AccountConditionSimple(kitchen_card) }
             };
-           Assert.AreEqual(3, q.Filter(entries).Count());
+            Assert.AreEqual(2, q.Apply(entries).Count());
         }
         [TestMethod]
-        public void CombinedFilterRashod()
-        {
-            var q = new Query
-            { /*type = QueryTypes.Select,*/
-                where = { new RashodCondition() },
-                subQ = {
-                    new Query { Set = ResultSets.Combined, where = { new AccountCondition(kitchen_card) } }
-                }
-            };
-            Assert.AreEqual(2, q.Filter(entries).Count());
-        }
-        [TestMethod]
-        public void UnionRashod4ParentQ()
+        public void T6_FilterSelfRashodCard()
         {
             var q = new Query
             {
-                where = { new RashodCondition() }
+                Conditions = { new RashodCondition(), new AccountConditionSimple(kitchen_card) }
             };
-            var q_Cash = new Query { Set = ResultSets.Union, parent = q, where = { new AccountCondition(kitchen_cash) } };
-            Assert.AreEqual(1, q_Cash.Filter(entries).Count());
+            Assert.AreEqual(2, q.Apply(entries).Count());
         }
+
         [TestMethod]
-        public void CombineRashodWithParentQ()
+        public void T6_0SumSelfRashodCard()
         {
             var q = new Query
             {
-                where = { new RashodCondition() }
+                QueryType = QueryTypes.Sum,
+                Conditions = { new RashodCondition(), new AccountConditionSimple(kitchen_card) }
             };
-            var q_Card = new Query { Set = ResultSets.Combined, parent = q, where = { new AccountCondition(kitchen_card) } };
-            Assert.AreEqual(2, q_Card.Filter(entries).Count());
+            Assert.AreEqual(0, engine.Sum(q));
         }
         [TestMethod]
-        public void EntryAcceptDateCondition()
+        public void T6_1500_SumSelfRashodCard()
+        {
+            var q = new Query
+            {
+                QueryType = QueryTypes.Sum,
+                SubQueries = {  new Query   {   QueryType = QueryTypes.Primary,
+                                                Conditions = { new RashodCondition(), new AccountConditionSimple(kitchen_card) }
+                                            }
+                            }
+
+            };
+            Assert.AreEqual(1500, engine.Sum(q));
+        }
+        [TestMethod]
+        public void T6_1500_SumParentRashodCard()
+        {
+            var qParent = new Query
+            {
+                QueryType = QueryTypes.Primary,
+                Conditions = { new RashodCondition() }
+            };
+            var q = new Query
+            {
+                QueryType = QueryTypes.Sum,
+                SubQueries = {  new Query   {   Parent = qParent,
+                                                QueryType = QueryTypes.Primary,
+                                                Conditions = { new AccountConditionSimple(kitchen_card) }
+                                            }
+                            }
+
+            };
+            Assert.AreEqual(1500, engine.Sum(q));
+        }
+        [TestMethod]
+        public void T6_2600_SumParentRashodAccounts()
+        {
+            var qParent = new Query
+            {
+                QueryType = QueryTypes.Primary,
+                Conditions = { new RashodCondition() }
+            };
+            var q = new Query
+            {
+                QueryType = QueryTypes.Sum,
+                SubQueries = {  new Query   {   Parent = qParent,
+                                                QueryType = QueryTypes.Primary,
+                                                Conditions = { new AccountConditionSimple(kitchen_card) }
+                                            },
+                                new Query { Parent = qParent,
+                                            QueryType = QueryTypes.Primary,
+                                            Conditions = { new AccountConditionSimple(kitchen_cash) }
+                                }
+                            }
+
+            };
+            Assert.AreEqual(2600, engine.Sum(q));
+        }
+        [TestMethod]
+        public void T6_400_DeltaCard()
+        {
+            var qParent = new Query
+            {
+                QueryType = QueryTypes.Primary,
+                Conditions = { new AccountConditionSimple(kitchen_card) }
+            };
+            var q = new Query
+            {
+                QueryType = QueryTypes.Sum,
+                SubQueries = {  new Query   {   Parent = qParent,
+                                                QueryType = QueryTypes.Primary,
+                                                Conditions = { new DohodCondition() }
+                                            },
+                                new Query   {   Parent = qParent,
+                                                QueryType = QueryTypes.Primary,
+                                                Negate = true,
+                                                Conditions = { new RashodCondition() }
+                                            }
+                            }
+
+            };
+            Assert.AreEqual(1500, engine.Sum(q));
+        }
+        [TestMethod]
+        public void T6_Ngate2600_DeltaCard()
+        {
+            var q = new Query
+            {
+                QueryType = QueryTypes.Sum,
+                SubQueries = {  new Query   {   QueryType = QueryTypes.Sum,
+                                                IgnoreMinus = true,
+                                                SubQueries = {
+                                                                new Query{
+                                                                    QueryType = QueryTypes.Primary,
+                                                                    Conditions = {new RashodCondition()}
+                                                                },
+                                                                new Query() {
+                                                                    QueryType  = QueryTypes.Primary,
+                                                                    Negate =true,
+                                                                    Conditions = { new DohodCondition()}
+                                                                }
+                                                }
+                                            },
+                                new Query   {   QueryType = QueryTypes.Primary,
+                                                Negate = true,
+                                                Conditions = { new RashodCondition() }
+                                            }
+                            }
+
+            };
+            Assert.AreEqual(-2600, engine.Sum(q));
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterParentRashod()
         {
             var q = new EQuery
             {
-                AcceptTime = {From = new DateTime(2017, 7, 1), To = new DateTime(2017, 7, 31) }
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Outcome } },
+                EntryType = new EntryType[] { EntryType.Outcome },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
             };
-            Assert.AreEqual(5, q.Filter(entries).Count());
+            Assert.AreEqual(3, q.Apply(entries).Count());
         }
         [TestMethod]
-        public void EntryDepartCondition()
+        public void T6_AcceptTimeCondition()
+        {
+            var condition = new AcceptTimeCondition { AcceptTime = new DateTimeRange { From = new DateTime(2017, 7, 15), To = new DateTime(2017, 7, 17) } };
+            Assert.AreEqual(new System.TimeSpan(2,0,0,0), condition.AcceptTime.To - condition.AcceptTime.From);
+        }
+        [TestMethod]
+        public void T6_DepCondition()
+        {
+            var q = new Query
+            {
+                QueryType = QueryTypes.Primary,
+                Conditions = { new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Outcome } } }
+            };
+            Assert.AreEqual(3, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_DepCondition()
         {
             var q = new EQuery
             {
-                Department = kitchen,
-                Type = EntryType.Outcome,
-                AcceptTime = { From = new DateTime(2017, 7, 1), To = new DateTime(2017, 7, 31) }
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen},
+                EntryType = new EntryType[] { EntryType.Income, EntryType.Outcome}
             };
-            Assert.AreEqual(3, q.Filter(entries).Count());
+            Assert.AreEqual(6, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_IncomeDepCondition()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Income } },
+                EntryType = new EntryType[] { EntryType.Income }
+            };
+            Assert.AreEqual(3, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_AnyDepCondition()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Any } },
+                EntryType = new EntryType[] { EntryType.Any }
+            };
+            Assert.AreEqual(7, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashod()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Outcome } },
+                EntryType = new EntryType[] { EntryType.Outcome },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(3, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashodCard()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Account = new AccountCondition { Account = kitchen_card, Types = new EntryType[] { EntryType.Outcome } },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(2, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashodCardOutcome()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Account = new AccountCondition { Account = kitchen_card, Types = new EntryType[] { EntryType.Outcome } },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            q.Apply(entries);
+            q.Account = new AccountCondition { Account = kitchen_cash, Types = new EntryType[] { EntryType.Outcome } };
+            Assert.AreEqual(1, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashodCardIncome()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Account = new AccountCondition { Account = kitchen_card, Types = new EntryType[] { EntryType.Income } }
+            };
+            Assert.AreEqual(1, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashodCardAny()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Account = new AccountCondition { Account = kitchen_card, Types = new EntryType[] { EntryType.Any } }
+             };
+            Assert.AreEqual(4, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashodCardExTransfer()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Account = new AccountCondition { Account = kitchen_card, Types = new EntryType[] { EntryType.Income, EntryType.Outcome} }
+            };
+            Assert.AreEqual(3, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashodCard1()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Outcome } },
+                EntryType = new EntryType[] { EntryType.Outcome },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            q.Apply(entries);
+            q.AcceptTime = new DateTimeRange { From = EngineConsts.NullDate, To = EngineConsts.NullDate };
+            Assert.AreEqual(3, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterRashodCard2()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Outcome } },
+                EntryType = new EntryType[] { EntryType.Outcome },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            q.Apply(entries);
+            q.Department = null;
+            Assert.AreEqual(3, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterDohodCard()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Income } },
+                EntryType = new EntryType[] { EntryType.Income },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(1, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_FilterDohodCard1()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Income } },
+                EntryType = new EntryType[] { EntryType.Income },
+                AcceptTime = new DateTimeRange
+                {
+                    From = EngineConsts.NullDate,
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(3, q.Apply(entries).Count());
         }
     }
 }

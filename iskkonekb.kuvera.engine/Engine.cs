@@ -22,7 +22,7 @@ namespace iskkonekb.kuvera.engine
         /// </summary>
         /// <param name="query">Запрос для расчета</param>
         /// <returns></returns>
-        public decimal Sum(Query query)
+        public decimal Sum(IQuery query)
         {
             decimal result = 0m;
             decimal rawresult = 0m;
@@ -30,23 +30,19 @@ namespace iskkonekb.kuvera.engine
                 rawresult = PrimarySum(query);
             else if (query.QueryType == QueryTypes.Sum)
                 rawresult = query.CollectSubresults(x => Sum(x)).Sum(); // рекурсивный вызов с суммированием
-            /*else
-                rawresult = ExecuteFormula(query);*/
+            else
+                throw new NotImplementedException("Пока формулы не поддерживаются");
             result = AdaptResult(rawresult, query);
             return result;
         }
 
-        /*decimal ExecuteFormula(Query query)
-        {
-            throw new NotImplementedException("Пока формулы не поддерживаются");
-        }*/
         /// <summary>
         /// Пост обработка результатов вычислений
         /// </summary>
         /// <param name="result">Рассчитанный результат</param>
         /// <param name="query">Запрос для которого рассчитываются проводки</param>
         /// <returns></returns>
-        decimal AdaptResult(decimal result, Query query)
+        decimal AdaptResult(decimal result, IQuery query)
         {
             if (query.IgnoreMinus && result < 0) return 0;
             if (query.Negate) return -result;
@@ -57,7 +53,7 @@ namespace iskkonekb.kuvera.engine
         /// </summary>
         /// <param name="query">Запрос</param>
         /// <returns>Рассчитанная сумма по проводкам</returns>
-        decimal PrimarySum(Query query)
+        decimal PrimarySum(IQuery query)
         {
             return query.Apply(_entries).Sum(x => x.Value);
         }

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using iskkonekb.kuvera.model.QueryConditions;
 
 namespace iskkonekb.kuvera.model
 {
     public enum QueryTypes
     {
         Primary,
-        Sum
-        //Formula
+        Sum,
+        Formula
     }
-    public class Query
+    public class Query : IQuery
     {
         public Query Parent { get; set; }
         public List<ICondition> Conditions { get; private set; } = new List<ICondition>();

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using iskkonekb.kuvera.model;
+using iskkonekb.kuvera.model.QueryConditions;
 using System.Linq;
 
 namespace iskkonekb.kuvera.engine.test
@@ -207,13 +208,7 @@ namespace iskkonekb.kuvera.engine.test
             };
             Assert.AreEqual(3, q.Apply(entries).Count());
         }
-        [TestMethod]
-        public void T6_AcceptTimeCondition()
-        {
-            var condition = new AcceptTimeCondition { AcceptTime = new DateTimeRange { From = new DateTime(2017, 7, 15), To = new DateTime(2017, 7, 17) } };
-            Assert.AreEqual(new System.TimeSpan(2,0,0,0), condition.AcceptTime.To - condition.AcceptTime.From);
-        }
-        [TestMethod]
+         [TestMethod]
         public void T6_DepCondition()
         {
             var q = new Query
@@ -401,6 +396,97 @@ namespace iskkonekb.kuvera.engine.test
                 }
             };
             Assert.AreEqual(3, q.Apply(entries).Count());
+        }
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void T6_EngineF_Formula()
+        {
+            var q = new Query
+            {
+                QueryType = QueryTypes.Formula,
+                Conditions = { new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Outcome } } }
+            };
+            var ret = engine.Sum(q);
+            Assert.Fail("An exception should have been thrown");
+        }
+        [TestMethod]
+        public void T6_EQuery_AcceptTime()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Income } },
+                EntryType = new EntryType[] { EntryType.Income },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(new System.TimeSpan(2, 0, 0, 0), q.AcceptTime.To - q.AcceptTime.From);
+        }
+        [TestMethod]
+        public void T6_EQuery_EntryType()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Income } },
+                EntryType = new EntryType[] { EntryType.Income },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(1, q.EntryType.Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_Department()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Income } },
+                EntryType = new EntryType[] { EntryType.Income },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(1, q.Department.Types.Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_AccountCondition()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Account = new AccountCondition { Account = kitchen_card, Types = new EntryType[] { EntryType.Outcome } },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(1, q.Account.Types.Count());
+        }
+        [TestMethod]
+        public void T6_EQuery_SetEntryType()
+        {
+            var q = new EQuery
+            {
+                QueryType = QueryTypes.Primary,
+                Department = new DepartmentCondition { Department = kitchen, Types = new EntryType[] { EntryType.Income } },
+                EntryType = new EntryType[] { EntryType.Income },
+                AcceptTime = new DateTimeRange
+                {
+                    From = new DateTime(2017, 7, 15),
+                    To = new DateTime(2017, 7, 17)
+                }
+            };
+            Assert.AreEqual(1, q.Department.Types.Count());
         }
     }
 }

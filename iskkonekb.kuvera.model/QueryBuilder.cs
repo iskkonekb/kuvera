@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using iskkonekb.kuvera.model;
+using iskkonekb.kuvera.model.QueryConditions;
 
 namespace iskkonekb.kuvera.model
 {

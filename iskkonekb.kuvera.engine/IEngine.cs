@@ -11,5 +11,12 @@ namespace iskkonekb.kuvera.engine
         /// </summary>
         /// <param name="entries">Проводки ддля проведения</param>
         void RegisterEntries(IEnumerable<Entry> entries);
+
+        /// <summary>
+        /// Рассчитать сумму проводок
+        /// </summary>
+        /// <param name="query">Запрос для расчета</param>
+        /// <returns></returns>
+        decimal Sum(IQuery query);
     }
 }

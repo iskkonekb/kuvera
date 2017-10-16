@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using iskkonekb.kuvera.model.QueryConditions;
+using iskkonekb.kuvera.core;
 
 namespace iskkonekb.kuvera.model
 {
-    public enum QueryTypes
-    {
-        Primary,
-        Sum,
-        Formula
-    }
     public class Query : IQuery
     {
-        public Query Parent { get; set; }
+        public IQuery Parent { get; set; }
         public List<ICondition> Conditions { get; private set; } = new List<ICondition>();
         /// <summary>
         /// Режим влияния подзапроса на результирующую выборку.
         /// </summary>
         public QueryTypes QueryType { get; set; }
         public bool IgnoreMinus { get; set; }
-        public List<Query> SubQueries { get; private set; } = new List<Query>();
+        public List<IQuery> SubQueries { get; private set; } = new List<IQuery>();
         public bool Negate { get; set; }
+        public string Comment { get; set; }
         /// <summary>
         /// Конструктор
         /// </summary>
@@ -54,7 +50,7 @@ namespace iskkonekb.kuvera.model
         /// <typeparam name="T">Тип результата</typeparam>
         /// <param name="collector">Фнкция обработки коллекции запросов</param>
         /// <returns></returns>
-        public IEnumerable<T> CollectSubresults<T>(Func<Query, T> collector)
+        public IEnumerable<T> CollectSubresults<T>(Func<IQuery, T> collector)
         {
             if (SubQueries != null)
                 foreach (var x in SubQueries)

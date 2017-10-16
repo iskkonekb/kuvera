@@ -1,11 +1,7 @@
-﻿namespace iskkonekb.kuvera.model
+﻿using iskkonekb.kuvera.core;
+namespace iskkonekb.kuvera.model
 {
-    public enum SysCategory
-    {
-        initSaldo
-    }
-
-    public class Category
+    public class Category : ICategory
     {
         private string _Code;
         private string _Name;

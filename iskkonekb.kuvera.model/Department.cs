@@ -1,6 +1,7 @@
-﻿namespace iskkonekb.kuvera.model
+﻿using iskkonekb.kuvera.core;
+namespace iskkonekb.kuvera.model
 {
-    public class Department
+    public class Department : IDepartment
     {
         private string v;
 

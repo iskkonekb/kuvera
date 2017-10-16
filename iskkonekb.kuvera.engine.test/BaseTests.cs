@@ -1,8 +1,7 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using iskkonekb.kuvera.model;
-using System.Linq;
+using iskkonekb.kuvera.core;
 
 namespace iskkonekb.kuvera.engine.test
 {
@@ -38,13 +37,13 @@ namespace iskkonekb.kuvera.engine.test
             engine = new Engine();
             engine.RegisterEntries(GetEntries());
         }
-        protected IEnumerable<Entry> GetEntries()
+        protected IEnumerable<IEntry> GetEntries()
         {
             yield return new Entry()
             {
                 AcceptTime = EngineConsts.NullDate,
-                Type = EntryType.Income,
-                Income = kitchen_cash,
+                Plus = true,
+                Account = kitchen_cash,
                 Category = initSaldo,
                 Value = 2000,
                 Comment = "Пополнение остатка"
@@ -52,8 +51,8 @@ namespace iskkonekb.kuvera.engine.test
             yield return new Entry()
             {
                 AcceptTime = EngineConsts.NullDate,
-                Type = EntryType.Income,
-                Income = kitchen_card,
+                Plus = true,
+                Account = kitchen_card,
                 Category = initSaldo,
                 Value = 3000,
                 Comment = "Пополнение остатка"
@@ -62,8 +61,8 @@ namespace iskkonekb.kuvera.engine.test
             {
                 AcceptTime = new DateTime(2017, 7, 15),
                 Project = rathayatra,
-                Type = EntryType.Outcome,
-                Outcome = kitchen_card,
+                Plus = false,
+                Account = kitchen_card,
                 Category = food,
                 Value = 1000,
                 Comment = "Верный"
@@ -72,8 +71,8 @@ namespace iskkonekb.kuvera.engine.test
             {
                 AcceptTime = new DateTime(2017, 7, 15),
                 Project = rathayatra,
-                Type = EntryType.Outcome,
-                Outcome = kitchen_cash,
+                Plus = false,
+                Account = kitchen_cash,
                 Category = food,
                 Value = 1100,
                 Comment = "База"
@@ -82,8 +81,8 @@ namespace iskkonekb.kuvera.engine.test
             {
                 AcceptTime = new DateTime(2017, 7, 16),
                 Project = rathayatra,
-                Outcome = kitchen_card,
-                Type = EntryType.Outcome,
+                Account = kitchen_card,
+                Plus = false,
                 Category = food,
                 Value = 500,
                 Comment = "Верный"
@@ -92,8 +91,8 @@ namespace iskkonekb.kuvera.engine.test
             {
                 AcceptTime = new DateTime(2017, 7, 17),
                 Project = rathayatra,
-                Type = EntryType.Income,
-                Income = kitchen_cash,
+                Plus = true,
+                Account = kitchen_cash,
                 Category = food,
                 Value = 2100,
                 Comment = "unknown payer"
@@ -102,10 +101,24 @@ namespace iskkonekb.kuvera.engine.test
             {
                 AcceptTime = new DateTime(2017, 7, 18),
                 Project = rathayatra,
-                Type = EntryType.Transfer,
-                Income = kitchen_card,
-                Outcome = kitchen_cash,
+                Plus = true,
+                Transfer = true,
+                Account = kitchen_card,
+                CorrespondAccount = kitchen_cash,
                 Value = 2000,
+                Collection = "p201709121234",
+                Comment = "unknown payer"
+            };
+            yield return new Entry()
+            {
+                AcceptTime = new DateTime(2017, 7, 18),
+                Project = rathayatra,
+                Plus = false,
+                Transfer = true,
+                Account = kitchen_cash,
+                CorrespondAccount = kitchen_card,
+                Value = 2000,
+                Collection = "p201709121234",
                 Comment = "unknown payer"
             };
         }

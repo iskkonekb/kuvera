@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using iskkonekb.kuvera.core;
 
 namespace iskkonekb.kuvera.model.test
 {
@@ -19,15 +20,15 @@ namespace iskkonekb.kuvera.model.test
         comment = "Верный"
         value = 1000
         */
-        [TestMethod]
+        [TestCategory("Master. Initial tests"), TestMethod]
         public void CreateOutcomeEntry()
         {
             var entry = new Entry
             {
                 AcceptTime = new DateTime(2017, 7, 15),
                 Category = new Category("food","Продукты питания"),
-                Type = EntryType.Outcome,
-                Outcome = new Account("kitchen-card"),
+                Plus = false,
+                Account = new Account("kitchen-card"),
                 Project = new Project("rathayatra-2017"),
                 Comment = "В Верном",
                 Value = 1000m
@@ -42,15 +43,15 @@ namespace iskkonekb.kuvera.model.test
         comment = "от физлиа"
         value = 2100
         */
-        [TestMethod]
+        [TestCategory("Master. Initial tests"), TestMethod]
         public void CreateIncomeEntry()
         {
             var entry = new Entry
             {
                 AcceptTime = new DateTime(2017, 7, 17),
                 Category = new Category("donation", "Пожертвование"),
-                Type = EntryType.Income,
-                Outcome = new Account("kitchen-cash"),
+                Plus = false,
+                Account = new Account("kitchen-cash"),
                 Comment = "от физлица",
                 Value = 2100m
             };
@@ -62,15 +63,16 @@ income = [kitchen-card]
 outcome = [kitchen-cash]
 value = 2000
 */
-        [TestMethod]
+        [TestCategory("Master. Initial tests"), TestMethod]
         public void CreateTransferEntry()
         {
             var entry = new Entry
             {
                 AcceptTime = new DateTime(2017, 7, 18),
-                Type = EntryType.Transfer,
-                Outcome = new Account("kitchen-cash"),
-                Income = new Account("kitchen-card"),
+                Plus = true,
+                Transfer = true,
+                CorrespondAccount = new Account("kitchen-cash"),
+                Account = new Account("kitchen-card"),
                 Value = 2000m
             };
         }

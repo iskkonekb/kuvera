@@ -1,8 +1,8 @@
 ﻿using System;
-
+using iskkonekb.kuvera.core;
 namespace iskkonekb.kuvera.model
 {
-    public class Account
+    public class Account : IAccount
     {
         private string v;
 
@@ -11,7 +11,7 @@ namespace iskkonekb.kuvera.model
             this.v = v;
         }
 
-        public Department Department { get; set; }
+        public IDepartment Department { get; set; }
         public DateTime DateCreate { get; set; }
     }
 }

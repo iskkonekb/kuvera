@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using iskkonekb.kuvera.model.QueryConditions;
+using iskkonekb.kuvera.core;
 
 namespace iskkonekb.kuvera.model
 {
@@ -10,17 +11,16 @@ namespace iskkonekb.kuvera.model
     {
         private AcceptTimeCondition _AcceptTimeCondition;
         private DepartmentCondition _DepartmentCondition;
-        private EntryTypeCondition _EntryTypeCondition;
         private AccountCondition _AccountCondition;
+        private EntryPlusCondition _EntryPlusCondition;
+        private IncludeTransferCondition _IncludeTransferCondition;
         /// <summary>
         /// Добавить уусловие в массив
         /// </summary>
         /// <param name="condition"></param>
         private void _addCondition(ICondition condition)
         {
-            if (condition == null) return;
-            if (Conditions.Contains(condition))
-                Conditions.Remove(condition);
+            Conditions.Remove(condition);
             Conditions.Add(condition);
         }
         /// <summary>
@@ -37,12 +37,12 @@ namespace iskkonekb.kuvera.model
         {
             if (Conditions.Contains(_AcceptTimeCondition)) Conditions.Remove(_AcceptTimeCondition);
             _AcceptTimeCondition = new AcceptTimeCondition { AcceptTime = value };
-            if (_AcceptTimeCondition != null) Conditions.Add(_AcceptTimeCondition);
+            Conditions.Add(_AcceptTimeCondition);
         }
         /// <summary>
         /// условие для периода проводки
         /// </summary>
-        public DateTimeRange AcceptTime { get => _AcceptTimeCondition.AcceptTime; set { SetAcceptTimeCondition( value); } }
+        public DateTimeRange AcceptTime { get => _AcceptTimeCondition.AcceptTime; set { SetAcceptTimeCondition(value); } }
         private void SetDepartCondition(DepartmentCondition value)
         {
             if (Conditions.Contains(_DepartmentCondition)) Conditions.Remove(_DepartmentCondition);
@@ -67,16 +67,29 @@ namespace iskkonekb.kuvera.model
         /// Условие по счету
         /// </summary>
         public AccountCondition Account { get => _AccountCondition; set => SetAccountCondition(value); }
-        private void SetEntryTypeCondition(EntryType[] value)
+
+        private void SetEntryPlusCondition(EntryPlusCondition value)
         {
-            if (Conditions.Contains(_EntryTypeCondition)) Conditions.Remove(_EntryTypeCondition);
-            _EntryTypeCondition = new EntryTypeCondition { Types = value };
-            if (_EntryTypeCondition != null) Conditions.Add(_EntryTypeCondition);
+            if (Conditions.Contains(_EntryPlusCondition)) Conditions.Remove(_EntryPlusCondition);
+            _EntryPlusCondition = value;
+            if (_EntryPlusCondition != null) Conditions.Add(_EntryPlusCondition);
         }
         /// <summary>
-        /// Тип операции. Приход/Расход
+        /// Условие по счету
         /// </summary>
-        public EntryType[] EntryType { get => _EntryTypeCondition.Types; set => SetEntryTypeCondition(value); }
+        public EntryPlusCondition Plus { get => _EntryPlusCondition; set => SetEntryPlusCondition(value); }
+
+        private void SetIncludeTransferCondition(IncludeTransferCondition value)
+        {
+            if (Conditions.Contains(_IncludeTransferCondition)) Conditions.Remove(_IncludeTransferCondition);
+            _IncludeTransferCondition = value;
+            if (_IncludeTransferCondition != null) Conditions.Add(_IncludeTransferCondition);
+        }
+        /// <summary>
+        /// Включать переводы или не вклчать
+        /// </summary>
+        public IncludeTransferCondition IncludeTransfer { get => _IncludeTransferCondition; set => SetIncludeTransferCondition(value); }
+
         /// <summary>
         /// Добавить условие по периоду
         /// </summary>
@@ -88,20 +101,12 @@ namespace iskkonekb.kuvera.model
             {
                 _addCondition(_AcceptTimeCondition);
             }
-            else if (Conditions.Contains(_AcceptTimeCondition))
-                Conditions.Remove(_AcceptTimeCondition);
         }
         public override IEnumerable<T> Apply<T>(IEnumerable<T> srcArr)
         {
             _addAcceptTimeCondition(); //Условие по периоду
-            _addCondition(_EntryTypeCondition); //Добавить условие по стороне проводки
-            if (_DepartmentCondition != null)
-                if (_DepartmentCondition.Types == null)
-                    _DepartmentCondition.Types = _EntryTypeCondition.Types;
-            if (_AccountCondition != null)
-                if (_AccountCondition.Types == null)
-                    _AccountCondition.Types = _EntryTypeCondition.Types;
-            return base.Apply(srcArr);
+            IEnumerable<T> tt = (IEnumerable<T>)srcArr;
+            return base.Apply(tt);
         }
     }
 }

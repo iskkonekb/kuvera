@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using iskkonekb.kuvera.core;
 using iskkonekb.kuvera.model;
 using System.Linq;
 
@@ -7,13 +8,13 @@ namespace iskkonekb.kuvera.engine
 {
     public class Engine : IEngine
     {
-        private List<Entry> _entries = new List<Entry>();
+        private List<IEntry> _entries = new List<IEntry>();
 
         /// <summary>
         /// Провести набор проводок
         /// </summary>
         /// <param name="entries">Проводки ддля проведения</param>
-        public void RegisterEntries(IEnumerable<Entry> entries)
+        public void RegisterEntries(IEnumerable<IEntry> entries)
         {
             _entries.AddRange(entries);
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using iskkonekb.kuvera.model;
+using iskkonekb.kuvera.core;
 using iskkonekb.kuvera.model.QueryConditions;
 
 namespace iskkonekb.kuvera.model
@@ -15,21 +15,25 @@ namespace iskkonekb.kuvera.model
         /// <returns></returns>
         public static Query AccountSaldoOut(Account account, DateTime dt)
         {
-            EQuery qParent = new EQuery {
-                AcceptTime = new DateTimeRange { From = EngineConsts.NullDate, To = dt}
+            EQuery qParent = new EQuery
+            {
+                Comment = "Parent Query",
+                AcceptTime = new DateTimeRange { From = EngineConsts.NullDate, To = dt }
             };
-            EQuery q = new EQuery {
+            EQuery q = new EQuery
+            {
                 QueryType = QueryTypes.Sum,
+                Comment = "Sum query",
                 SubQueries = {
                     new EQuery {
+                        Comment = "Account plus query",
                         Parent = qParent,
-                        EntryType = new EntryType[]{ EntryType.Income, EntryType.Transfer},
-                        Account = new AccountCondition{ Account = account},
+                        Account = new AccountCondition{ Account = account, IncludeTransfer = true, Plus = true},
                     },
                     new EQuery {
+                        Comment = "Account minus query",
                         Parent = qParent,
-                        EntryType = new EntryType[]{ EntryType.Outcome, EntryType.Transfer},
-                        Account = new AccountCondition{ Account = account},
+                        Account = new AccountCondition{ Account = account, Plus = false, IncludeTransfer = true},
                         Negate = true
                     }
                 }
@@ -55,13 +59,11 @@ namespace iskkonekb.kuvera.model
                 SubQueries = {
                     new EQuery {
                         Parent = qParent,
-                        EntryType = new EntryType[]{ EntryType.Income, EntryType.Transfer},
-                        Department = new DepartmentCondition{  Department = department},
+                        Department = new DepartmentCondition{  Department = department,  Plus = true, IncludeTransfer = true},
                     },
                     new EQuery {
                         Parent = qParent,
-                        EntryType = new EntryType[]{ EntryType.Outcome, EntryType.Transfer},
-                        Department = new DepartmentCondition{  Department = department},
+                        Department = new DepartmentCondition{  Department = department, Plus = false, IncludeTransfer = true},
                         Negate = true
                     }
                 }
@@ -77,21 +79,23 @@ namespace iskkonekb.kuvera.model
         /// <param name="department"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static Query SumDepart(DateTime startdate, DateTime enddate, Department department, EntryType type)
+        public static Query SumDepart(DateTime startdate, DateTime enddate, Department department, bool plus)
         {
             EQuery qParent = new EQuery
             {
+                Comment = "Parent query",
                 AcceptTime = new DateTimeRange { From = startdate, To = enddate }
             };
             EQuery q = new EQuery
             {
+                Comment = "Sum query",
                 QueryType = QueryTypes.Sum,
                 SubQueries = {
                     new EQuery {
+                        Comment = "Doxod query",
                         Parent = qParent,
-                        EntryType = new EntryType[]{ type},
-                        Department = new DepartmentCondition{  Department = department},
-                    },
+                        Department = new DepartmentCondition{  Plus = plus, IncludeTransfer = false, Department = department},
+                    }
                 }
             };
             return q;

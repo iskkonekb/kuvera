@@ -1,6 +1,7 @@
-﻿namespace iskkonekb.kuvera.model
+﻿using iskkonekb.kuvera.core;
+namespace iskkonekb.kuvera.model
 {
-    public class Project
+    public class Project : IProject
     {
         private string v;
 
